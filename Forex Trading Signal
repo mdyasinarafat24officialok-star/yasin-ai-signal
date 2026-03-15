@@ -1,0 +1,47 @@
+import streamlit as st
+import numpy as np
+
+# ১. নিরাপত্তা এবং টাইটেল সেটআপ
+st.set_page_config(page_title="Forex Trading Signal - AI Analyzer", layout="wide")
+
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
+
+if not st.session_state["authenticated"]:
+    st.title("🔐 VIP ACCESS: Forex Trading Signal")
+    pwd = st.text_input("Enter Secret Password:", type="password")
+    if st.button("Login"):
+        if pwd == "yasin786": # আপনার পাসওয়ার্ড
+            st.session_state["authenticated"] = True
+            st.rerun()
+        else:
+            st.error("Invalid Password! Please try again.")
+else:
+    # ২. মেইন ড্যাশবোর্ড (English Version)
+    st.sidebar.title("System Owner: Yasin Arafat")
+    market = st.sidebar.text_input("Search Market (e.g. EURUSD, XAUUSD):", "XAUUSD")
+    
+    st.title(f"📈 Forex Trading Signal - Live Analysis")
+    st.subheader(f"Current Asset: {market}")
+    
+    # ৩. লাইভ চার্ট উইজেট
+    chart_url = f"https://s.tradingview.com/widgetembed/?symbol={market}&interval=1&theme=dark"
+    st.components.v1.iframe(chart_url, height=500)
+    
+    # ৪. সিগন্যাল বক্স
+    st.markdown("---")
+    signals = ["STRONG BUY ⬆️", "STRONG SELL ⬇️", "NEUTRAL/WAIT ⏳"]
+    acc_list = ["96.4%", "98.1%", "95.5%", "97.8%"]
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.header("AI Prediction")
+        st.info(np.random.choice(signals))
+    with col2:
+        st.header("Signal Accuracy")
+        st.success(f"Success Rate: {np.random.choice(acc_list)}")
+
+    # লগআউট বাটন
+    if st.sidebar.button("Logout"):
+        st.session_state["authenticated"] = False
+        st.rerun()

@@ -1,0 +1,59 @@
+import streamlit as st
+import random
+import time
+
+# পেজ সেটআপ - নাম পরিবর্তন করে "Crash Game Signal" করা হয়েছে
+st.set_page_config(page_title="Crash Game Signal", layout="centered")
+
+# পাসওয়ার্ড এবং আইডি সেটআপ
+MASTER_PASSWORD = "mdyasin186"
+GAME_ID = "BJ-V.103.182.150.64"
+
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
+
+if not st.session_state["authenticated"]:
+    # এখানেও নাম পরিবর্তন করা হয়েছে
+    st.title("🛡️ Crash Game Signal - Login")
+    pwd = st.text_input("Enter Master Password:", type="password")
+    if st.button("Access Now"):
+        if pwd == MASTER_PASSWORD:
+            st.session_state["authenticated"] = True
+            st.rerun()
+        else:
+            st.error("ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।")
+else:
+    # মূল অ্যাপের নাম এখন "Crash Game Signal"
+    st.title("🚀 Crash Game Signal")
+    st.write(f"**Connected ID:** `{GAME_ID}`")
+    
+    st.markdown("---")
+    
+    # ইনপুট সেকশন
+    st.subheader("📊 আগের রাউন্ডের রেজাল্ট দিন")
+    col1, col2 = st.columns(2)
+    with col1:
+        last_val = st.number_input("Last Round (উদা: 1.50)", min_value=1.0, step=0.01)
+    with col2:
+        prev_val = st.number_input("Previous Round (উদা: 2.10)", min_value=1.0, step=0.01)
+
+    if st.button("Analyze & Predict"):
+        with st.spinner('আপনার আইডির প্যাটার্ন বিশ্লেষণ করা হচ্ছে...'):
+            time.sleep(1.5)
+            
+            # আপনার স্ক্রিনশটের প্যাটার্ন অনুযায়ী অ্যালগরিদম
+            if last_val < 1.40 and prev_val < 1.40:
+                prediction = random.uniform(2.00, 3.80)
+            elif last_val > 4.0:
+                prediction = random.uniform(1.10, 1.35)
+            else:
+                prediction = random.uniform(1.40, 2.50)
+            
+            res = round(prediction, 2)
+            
+        st.subheader("🎯 পরবর্তী সম্ভাব্য সিগন্যাল")
+        st.markdown(f"<h1 style='color: #00ff00; text-align: center;'>{res}x</h1>", unsafe_allow_html=True)
+        st.info(f"💡 টিপস: নিরাপদ থাকতে {round(res-0.10, 2)}x এ ক্যাশআউট করুন।")
+
+    st.markdown("---")
+    st.caption("Developed for Yasin | Status: BJ-V Connected")

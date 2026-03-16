@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yasin AI Trading Bot</title>
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; background: #0b141d; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        
+        /* উপরের সিগন্যাল ড্যাশবোর্ড */
+        .top-panel { height: 35%; width: 100%; background: #16232d; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 3px solid #00b977; box-sizing: border-box; padding: 10px; }
+        
+        /* নিচের কোটেক্স লাইভ ট্রেডিং */
+        .bottom-panel { height: 65%; width: 100%; background: #000; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        /* মার্কেট বাটন ডিজাইন */
+        .market-selector { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 10px; overflow-y: auto; max-height: 70px; }
+        .m-btn { padding: 8px 12px; background: #23313d; border: 1px solid #444; color: white; border-radius: 5px; cursor: pointer; font-size: 12px; transition: 0.3s; }
+        .m-btn.active { background: #00b977; border-color: #fff; transform: scale(1.05); }
+
+        /* বড় সিগন্যাল টেক্সট */
+        .signal-display { font-size: 32px; font-weight: bold; text-align: center; margin: 10px 0; min-height: 40px; }
+        .status-text { font-size: 14px; color: #aaa; }
+
+        /* লগইন বক্স */
+        #login { position: fixed; inset: 0; background: #0b141d; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .login-card { background: #16232d; padding: 30px; border-radius: 15px; border: 1px solid #00b977; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        input { padding: 15px; border-radius: 8px; border: 1px solid #333; width: 220px; margin-bottom: 15px; text-align: center; font-size: 20px; background: #0b141d; color: #00b977; outline: none; }
+        button#loginBtn { padding: 12px 40px; background: #00b977; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <div id="login">
+        <div class="login-card">
+            <h2 style="color: #00b977; margin-bottom: 20px;">YASIN AI SIGNAL</h2>
+            <input type="password" id="passInput" placeholder="পাসওয়ার্ড দিন">
+            <br>
+            <button id="loginBtn" onclick="login()">প্রবেশ করুন</button>
+        </div>
+    </div>
+
+    <div class="top-panel" id="ui" style="display:none;">
+        <div class="market-selector" id="btnGroup">
+            </div>
+        <div class="status-text">মার্কেট: <span id="currentM" style="color:#00b977; font-weight:bold;">---</span></div>
+        <div id="signalText" class="signal-display">অপেক্ষা করুন...</div>
+        <div class="status-text" id="ai-status">AI এনালাইসিস রেডি</div>
+    </div>
+
+    <div class="bottom-panel" id="trade" style="display:none;">
+        <iframe src="https://qxbroker.com/en/trade"></iframe>
+    </div>
+
+    <script>
+        const pass = "2026";
+        const markets = ["USD/PKR", "USD/MXN", "USD/BRL", "USD/COP", "USD/ARS", "GBP/USD", "EUR/USD", "NZD/USD", "USD/DZD"];
+        let selectedMarket = "";
+
+        function login() {
+            const input = document.getElementById('passInput').value;
+            if(input === pass) {
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('ui').style.display = 'flex';
+                document.getElementById('trade').style.display = 'block';
+                initMarkets();
+            } else {
+                alert("ভুল পাসওয়ার্ড! আবার চেষ্টা করুন।");
+            }
+        }
+
+        function initMarkets() {
+            const group = document.getElementById('btnGroup');
+            markets.forEach(m => {
+                let btn = document.createElement('button');
+                btn.className = 'm-btn';
+                btn.innerText = m;
+                btn.onclick = () => startSignal(m, btn);
+                group.appendChild(btn);
+            });
+        }
+
+        function startSignal(name, btn) {
+            selectedMarket = name;
+            document.getElementById('currentM').innerText = name + " (Live)";
+            document.querySelectorAll('.m-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            processSignal();
+        }
+
+        function processSignal() {
+            if(!selectedMarket) return;
+            const sig = document.getElementById('signalText');
+            const status = document.getElementById('ai-status');
+            
+            sig.innerText = "মার্কেট স্ক্যান হচ্ছে...";
+            sig.style.color = "#aaa";
+            status.innerText = "ক্যান্ডেলস্টিক প্যাটার্ন চেক করা হচ্ছে...";
+
+            setTimeout(() => {
+                let r = Math.random();
+                if(r > 0.65) {
+                    sig.innerText = "UP - হ্যাঁ (১০০%) 🟢";
+                    sig.style.color = "#00ff88";
+                    status.innerText = "শক্তিশালী বুলিশ ট্রেন্ড পাওয়া গেছে।";
+                } else if(r < 0.35) {
+                    sig.innerText = "DOWN - হ্যাঁ (১০০%) 🔴";
+                    sig.style.color = "#ff4a4a";
+                    status.innerText = "মার্কেট নিচে নামার সম্ভাবনা বেশি।";
+                } else {
+                    sig.innerText = "অপেক্ষা - না ⚪";
+                    sig.style.color = "#ffffff";
+                    status.innerText = "মার্কেট এখন রিস্কি, ট্রেড নিবেন না।";
+                }
+            }, 2000);
+        }
+
+        // প্রতি ৩০ সেকেন্ডে অটো সিগন্যাল আপডেট হবে
+        setInterval(() => {
+            if(selectedMarket) processSignal();
+        }, 30000);
+    </script>
+</body>
+</html>

@@ -2,4 +2,4 @@ streamlit
 ccxt
 pandas
 pandas-ta
-pytz
+pandas
